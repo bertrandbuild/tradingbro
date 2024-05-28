@@ -1,4 +1,7 @@
+import "@covalenthq/goldrush-kit/styles.css";
+
 import { useState } from 'react'
+import { TokenBalancesList } from "@covalenthq/goldrush-kit";
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
@@ -28,6 +31,22 @@ function App() {
       <p className="read-the-docs">
         Click on the Vite and React logos to learn more
       </p>
+      <TokenBalancesList
+        chain_names={[
+            "eth-mainnet",
+            "btc-mainnet",
+            "matic-mainnet",
+            "bsc-mainnet",
+            "avalanche-mainnet",
+            "optimism-mainnet",
+            "arbitrum-mainnet",
+            "fantom-mainnet",
+            "base-mainnet",
+            "mantle-mainnet",
+        ]}
+        hide_small_balances
+        address="0xfc43f5f9dd45258b3aff31bdbe6561d97e8b71de" //sample address
+      />
     </>
   )
 }
