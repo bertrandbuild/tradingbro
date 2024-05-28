@@ -4,7 +4,7 @@ const TokenTable = ({ data }: { data: BalancesResponse[] }) => {
   return (
     <div className="p-4">
       <div className="mb-4">
-        <h2 className="text-lg font-bold">Blockchain Information</h2>
+        <h2 className="text-lg font-bold">Portfolio holdings</h2>
       </div>
       <div className="overflow-x-auto">
         <table className="table w-full">
@@ -35,7 +35,7 @@ const TokenTable = ({ data }: { data: BalancesResponse[] }) => {
               }
 
               return (
-                <tr key={index}>
+                <tr key={`${networkData.chain_name}-${index}`}>
                   <td>
                     <img src={item.logo_url} alt={item.contract_name} className="w-8 h-8 rounded-full border border-gray-300" />
                   </td>
