@@ -1,48 +1,65 @@
-import "@covalenthq/goldrush-kit/styles.css";
+import { useQuery } from '@tanstack/react-query';
+import { Chain, CovalentClient } from "@covalenthq/client-sdk";
+import TokenTable from './Components/TokenTable'; // Import the TokenTable component
+import { useAccount } from 'wagmi';
+// import Loading from './Loading'; // Import the Loading component
 
-import { useAccount } from "wagmi";
+const networks = ["eth-mainnet", "matic-mainnet", "arbitrum-mainnet", "base-mainnet"];
 
-import { TokenBalancesList } from "@covalenthq/goldrush-kit";
-import viteLogo from "/vite.svg";
-import "./App.css";
+const fetchTokenBalances = async (address: string) => {
+  const client = new CovalentClient(import.meta.env.VITE_COVALENT_API_KEY);
+  const allData = [];
 
-function App() {
+  for (const network of networks) {
+    try {
+      const resp = await client.BalanceService.getTokenBalancesForWalletAddress(
+        network as Chain,
+        address
+      );
+      allData.push({ ...resp.data, chain_name: network });
+    } catch (error) {
+      console.error(`Failed to fetch data for network ${network}:`, error);
+    }
+  }
+
+  return allData;
+};
+
+const App = () => {
   const { address } = useAccount();
-  if (address) console.log(address);
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["tokenBalances"],
+    queryFn: () => (address ? fetchTokenBalances(address) : undefined),
+  });
+
+  if (isLoading) return <div>Loading...</div>;
+  if (isError) return <div className="text-red-500">Error fetching data</div>;
 
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-      </div>
-      <h1>Trading bro</h1>
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold">Trading Bro</h1>
       {!address && (
         <p className="read-the-docs">
           Connect your wallet to see your token balances.
         </p>
       )}
       <w3m-button />
-      {address && (
-        <TokenBalancesList
-          chain_names={[
-            "eth-mainnet",
-            "matic-mainnet",
-            "bsc-mainnet",
-            "avalanche-mainnet",
-            "optimism-mainnet",
-            "arbitrum-mainnet",
-            "fantom-mainnet",
-            "base-mainnet",
-            "mantle-mainnet",
-          ]}
-          hide_small_balances
-          address={address}
+      {data && data.length > 0 && (
+        <TokenTable
+          data={data.map((item) => ({
+            ...item,
+            items: item.items.map((balanceItem) => ({
+              ...balanceItem,
+              balance:
+                balanceItem.balance !== null
+                  ? BigInt(balanceItem.balance)
+                  : BigInt(0),
+            })),
+          }))}
         />
       )}
-    </>
+    </div>
   );
-}
+};
 
 export default App;
