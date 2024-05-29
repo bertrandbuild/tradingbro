@@ -1,13 +1,6 @@
-## Foundry
+# Trading Bro contracts
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
-
-Foundry consists of:
-
--   **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
--   **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
--   **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
--   **Chisel**: Fast, utilitarian, and verbose solidity REPL.
+Deployed on galadriel devnet: 0xD0F7b22C973Ae7A685B3B920616451573b68ba20 with dev oracle : 0x4168668812C94a3167FCd41D12014c5498D74d7e
 
 ## Documentation
 
@@ -27,34 +20,10 @@ $ forge build
 $ forge test
 ```
 
-### Format
-
-```shell
-$ forge fmt
-```
-
-### Gas Snapshots
-
-```shell
-$ forge snapshot
-```
-
-### Anvil
-
-```shell
-$ anvil
-```
-
 ### Deploy
 
 ```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
-```
-
-### Cast
-
-```shell
-$ cast <subcommand>
+forge create --rpc-url "https://devnet.galadriel.com" --private-key <your_private_key> src/ChatGpt.sol:ChatGpt --constructor-args 0x4168668812C94a3167FCd41D12014c5498D74d7e
 ```
 
 ### Help
