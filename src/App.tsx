@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Chain, CovalentClient } from "@covalenthq/client-sdk";
 import TokenTable from './Components/TokenTable'; // Import the TokenTable component
 import { useAccount } from 'wagmi';
-// import Loading from './Loading'; // Import the Loading component
+import Loading from './Components/Loading';
 
 const networks = ["eth-mainnet", "matic-mainnet", "arbitrum-mainnet", "base-mainnet"];
 
@@ -28,11 +28,13 @@ const fetchTokenBalances = async (address: string) => {
 const App = () => {
   const { address } = useAccount();
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["tokenBalances"],
-    queryFn: () => (address ? fetchTokenBalances(address) : undefined),
+    queryKey: ["tokenBalances", address],
+    queryFn: () => fetchTokenBalances(address as string),
+    enabled: !!address,
+    staleTime: 1000 * 60 * 60, // 1 hour
   });
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return <Loading />;
   if (isError) return <div className="text-red-500">Error fetching data</div>;
 
   return (
@@ -44,7 +46,7 @@ const App = () => {
         </p>
       )}
       <w3m-button />
-      {data && data.length > 0 && (
+      {data && address && data.length > 0 && (
         <TokenTable
           data={data.map((item) => ({
             ...item,
