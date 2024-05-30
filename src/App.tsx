@@ -6,6 +6,7 @@ import Loading from "./Components/Loading";
 import Chat from "./Components/Chat/Chat";
 import { useChatHook } from "./Components/Chat";
 import { useEffect } from "react";
+import Fuse from 'fuse.js'
 
 const isDevMode = import.meta.env.DEV;
 const networks = isDevMode
@@ -49,6 +50,31 @@ const fetchPortfolioHistory = async (address: string) => {
 
   return allData;
 };
+
+const fetchChainList = async () => {
+  try {
+    const response = await fetch('https://chainid.network/chains.json');
+    const allChains = await response.json();
+
+    // Filter out testnets
+    const processedChainList = await allChains.filter(chain => {
+      if (chain.name.toLowerCase().includes("test") 
+        || chain.title?.toLowerCase().includes("test"))
+      return false;
+      if (chain.name === "OP Mainnet") {
+          chain.tags = ["optimism", "op", "op-mainnet", "optimism-mainnet"];
+          console.log(chain);
+      } else {
+        chain.tags = []
+      }
+      return true;
+    });
+    return processedChainList;
+  } catch (error) {
+    console.error('Error fetching chain data:', error);
+    return [];
+  }
+}
 
 function bigIntReplacer(key, value) {
   if (typeof value === 'bigint') {
