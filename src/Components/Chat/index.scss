@@ -1,3 +1,8 @@
+// Hide the first message (asking for the wallet analysis)
+.message:first-of-type {
+  display: none;
+}
+
 .chat-textarea {
   .rt-TextAreaInput {
     height: 50px;

@@ -50,6 +50,13 @@ const fetchPortfolioHistory = async (address: string) => {
   return allData;
 };
 
+function bigIntReplacer(key, value) {
+  if (typeof value === 'bigint') {
+    return value.toString();
+  }
+  return value;
+}
+
 const App = () => {
   const { address } = useAccount();
   const chatProvider = useChatHook();
@@ -72,7 +79,11 @@ const App = () => {
   if (portfolioHistory) console.log(portfolioHistory);
 
   useEffect(() => {
-    chatProvider.onCreateChat?.(chatProvider.DefaultPersonas[0])
+    chatProvider.onCreateChat?.(chatProvider.DefaultPersonas[0]) // TODO : set personas
+    if (!tokenBalances) return;
+    chatProvider.sendMessage(`Here is my portfolio details, do a wallet analysis and suggest some trades : ${JSON.stringify(
+          tokenBalances,
+          bigIntReplacer)}`);
   }, [tokenBalances]);
 
   if (isLoading) return <Loading />;
@@ -87,9 +98,9 @@ const App = () => {
         </p>
       )}
       <w3m-button />
-      <Chat ref={chatProvider.chatRef} />
       {tokenBalances && address && tokenBalances.length > 0 && (
         <>
+          <Chat ref={chatProvider.chatRef} />
           <TokenTable
             data={tokenBalances.map((item) => ({
               ...item,

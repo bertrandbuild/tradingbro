@@ -61,11 +61,9 @@ const Chat = (props: ChatProps, ref: React.RefObject<ChatGPInstance>) => {
 
   const bottomOfChatRef = useRef<HTMLDivElement>(null);
   const sendMessage = useCallback(
-    async (e: React.FormEvent<HTMLFormElement>) => {
+    async (messageContent: string) => {
       if (!isLoading) {
-        e.preventDefault();
-        const input =
-          textAreaRef.current?.innerHTML?.replace(HTML_REGULAR, "") || "";
+        const input = messageContent.replace(HTML_REGULAR, "") || "";
 
         if (input.length < 1) {
           toast.error("Please type a message to continue.");
@@ -99,12 +97,12 @@ const Chat = (props: ChatProps, ref: React.RefObject<ChatGPInstance>) => {
             receipt = await tx.wait();
             chatId = getChatId(receipt, contract);
             if (chatId) {
-              saveChatId?.(chatId)
+              saveChatId?.(chatId);
             }
           } else {
-            chatId = currentChatRef?.current?.chatId
-            const transactionResponse = await contract.addMessage(input, currentChatRef?.current?.chatId)
-            receipt = await transactionResponse.wait()
+            chatId = currentChatRef?.current?.chatId;
+            const transactionResponse = await contract.addMessage(input, currentChatRef?.current?.chatId);
+            receipt = await transactionResponse.wait();
           }
           setIsTxLoading(false);
           if (receipt && receipt.status) {
@@ -118,7 +116,7 @@ const Chat = (props: ChatProps, ref: React.RefObject<ChatGPInstance>) => {
             ];
             if (chatId) {
               if (currentChatRef?.current) {
-                currentChatRef.current.chatId = chatId
+                currentChatRef.current.chatId = chatId;
               }
 
               while (true) {
@@ -126,7 +124,7 @@ const Chat = (props: ChatProps, ref: React.RefObject<ChatGPInstance>) => {
                 if (newMessages) {
                   const lastMessage = newMessages.at(-1);
                   if (lastMessage) {
-                    if (lastMessage.role == "assistant") {
+                    if (lastMessage.role === "assistant") {
                       conversation.current = [
                         ...conversation.current,
                         { content: lastMessage.content, role: "assistant" },
@@ -197,8 +195,10 @@ const Chat = (props: ChatProps, ref: React.RefObject<ChatGPInstance>) => {
   const handleKeypress = useCallback(
     (e: any) => {
       if (e.keyCode == 13 && !e.shiftKey) {
-        sendMessage(e);
         e.preventDefault();
+        if (textAreaRef.current?.innerHTML) {
+          sendMessage(textAreaRef.current?.innerHTML);
+        }
       }
     },
     [sendMessage]
@@ -249,6 +249,7 @@ const Chat = (props: ChatProps, ref: React.RefObject<ChatGPInstance>) => {
       focus: () => {
         textAreaRef.current?.focus();
       },
+      sendMessage,
     };
   });
 
