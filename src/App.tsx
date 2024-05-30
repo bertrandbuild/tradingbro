@@ -5,6 +5,7 @@ import { useAccount } from "wagmi";
 import Loading from "./Components/Loading";
 import Chat from "./Components/Chat/Chat";
 import { useChatHook } from "./Components/Chat";
+import { useEffect } from "react";
 
 const isDevMode = import.meta.env.DEV;
 const networks = isDevMode
@@ -51,8 +52,12 @@ const fetchPortfolioHistory = async (address: string) => {
 
 const App = () => {
   const { address } = useAccount();
-  const provider = useChatHook();
-  const { data, isLoading, isError } = useQuery({
+  const chatProvider = useChatHook();
+  const {
+    data: tokenBalances,
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ["tokenBalances", address],
     queryFn: () => fetchTodayTokenBalances(address as string),
     enabled: !!address,
@@ -66,6 +71,10 @@ const App = () => {
   });
   if (portfolioHistory) console.log(portfolioHistory);
 
+  useEffect(() => {
+    chatProvider.onCreateChat?.(chatProvider.DefaultPersonas[0])
+  }, [tokenBalances]);
+
   if (isLoading) return <Loading />;
   if (isError) return <div className="text-red-500">Error fetching data</div>;
 
@@ -78,11 +87,11 @@ const App = () => {
         </p>
       )}
       <w3m-button />
-      {data && address && data.length > 0 && (
+      <Chat ref={chatProvider.chatRef} />
+      {tokenBalances && address && tokenBalances.length > 0 && (
         <>
-          <Chat ref={provider.chatRef} />
           <TokenTable
-            data={data.map((item) => ({
+            data={tokenBalances.map((item) => ({
               ...item,
               items: item.items.map((balanceItem) => ({
                 ...balanceItem,
