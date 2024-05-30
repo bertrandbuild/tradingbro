@@ -21,7 +21,8 @@ const fetchTodayTokenBalances = async (address: string) => {
     try {
       const resp = await client.BalanceService.getTokenBalancesForWalletAddress(
         network as Chain,
-        address
+        address,
+        {"nft": false,"noSpam": true}
       );
       allData.push({ ...resp.data, chain_name: network });
     } catch (error) {
@@ -53,23 +54,20 @@ const fetchPortfolioHistory = async (address: string) => {
 
 const fetchChainList = async () => {
   try {
-    const response = await fetch('https://chainid.network/chains.json');
-    const allChains = await response.json();
+    const response = await fetch('https://api.0xsquid.com/v1/chains');
+    const allChains = (await response.json()).chains;
 
-    // Filter out testnets
-    const processedChainList = await allChains.filter(chain => {
-      if (chain.name.toLowerCase().includes("test") 
-        || chain.title?.toLowerCase().includes("test"))
-      return false;
-      if (chain.name === "OP Mainnet") {
-          chain.tags = ["optimism", "op", "op-mainnet", "optimism-mainnet"];
-          console.log(chain);
-      } else {
-        chain.tags = []
-      }
-      return true;
-    });
-    return processedChainList;
+    const fuseOptions = {
+      keys: [
+        {name: 'tags', weight: 1},
+        {name: 'chainName', weight: 0.5},
+        {name: 'networkName', weight: 0.5},
+      ],
+      threshold: 0.2
+    }
+    const fusedChains = new Fuse(allChains, fuseOptions)
+    console.log(fusedChains);
+    return(fusedChains);
   } catch (error) {
     console.error('Error fetching chain data:', error);
     return [];
@@ -100,9 +98,14 @@ const App = () => {
     queryKey: ["portfolioHistory", address],
     queryFn: () => fetchPortfolioHistory(address as string),
     enabled: !!address,
-    staleTime: 1000 * 60 * 60,
+    staleTime: 1000 * 60 * 60, // 1 hour
   });
-  if (portfolioHistory) console.log(portfolioHistory);
+  const { data: searchableChains } = useQuery({
+    queryKey: ["chainList", address],
+    queryFn: () => fetchChainList(),
+    staleTime: 1000 * 60 * 60 * 24 * 60, // 60 days
+  });
+  if (searchableChains) console.log(searchableChains.search('base')[0]);
 
   useEffect(() => {
     chatProvider.onCreateChat?.(chatProvider.DefaultPersonas[0]) // TODO : set personas
