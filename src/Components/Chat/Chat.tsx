@@ -22,6 +22,7 @@ import Message from "./Message";
 const CONTRACT_ADDRESS = "0xD0F7b22C973Ae7A685B3B920616451573b68ba20";
 
 import "./index.scss";
+import useChatHook from "./useChatHook";
 
 const HTML_REGULAR =
   /<(?!img|table|\/table|thead|\/thead|tbody|\/tbody|tr|\/tr|td|\/td|th|\/th|br|\/br).*?>/gi;
@@ -37,19 +38,19 @@ export interface ChatGPInstance {
 const Chat = (props: ChatProps, ref: React.RefObject<ChatGPInstance>) => {
   const {
     debug,
-    currentChatRef,
     saveMessages,
     onToggleSidebar,
     forceUpdate,
     saveChatId,
   } = useContext(ChatContext);
+  const chatProvider = useChatHook();
+  const currentChatRef = chatProvider.currentChatRef;
 
   const provider = new ethers.JsonRpcProvider("https://devnet.galadriel.com");
   const wallet = new ethers.Wallet(import.meta.env.VITE_WALLET_PK, provider);
 
   const [isLoading, setIsLoading] = useState(false);
   const [isTxLoading, setIsTxLoading] = useState(false);
-  const [chatId, setChatId] = useState<number | null>(null);
 
   const [message, setMessage] = useState("");
   const [currentMessage, setCurrentMessage] = useState<string>("");
@@ -97,14 +98,13 @@ const Chat = (props: ChatProps, ref: React.RefObject<ChatGPInstance>) => {
             const tx = await contract.startChat(input);
             receipt = await tx.wait();
             chatId = getChatId(receipt, contract);
+            if (chatId) {
+              saveChatId?.(chatId)
+            }
           } else {
-            chatId = 0;
-            setChatId(chatId);
-            const transactionResponse = await contract.addMessage(
-              input,
-              chatId
-            );
-            receipt = await transactionResponse.wait();
+            chatId = currentChatRef?.current?.chatId
+            const transactionResponse = await contract.addMessage(input, currentChatRef?.current?.chatId)
+            receipt = await transactionResponse.wait()
           }
           setIsTxLoading(false);
           if (receipt && receipt.status) {
@@ -116,32 +116,33 @@ const Chat = (props: ChatProps, ref: React.RefObject<ChatGPInstance>) => {
                 transactionHash: receipt.hash,
               },
             ];
+            if (chatId) {
+              if (currentChatRef?.current) {
+                currentChatRef.current.chatId = chatId
+              }
 
-            while (true) {
-              const newMessages: ChatMessage[] = await getNewMessages(
-                contract,
-                chatId || 0,
-                conversation.current.length
-              );
-              if (newMessages) {
-                const lastMessage = newMessages.at(-1);
-                if (lastMessage) {
-                  if (lastMessage.role == "assistant") {
-                    conversation.current = [
-                      ...conversation.current,
-                      { content: lastMessage.content, role: "assistant" },
-                    ];
-                    break;
-                  } else {
-                    // Simple solution to show function results, not ideal
-                    conversation.current = [
-                      ...conversation.current,
-                      { content: lastMessage.content, role: "user" },
-                    ];
+              while (true) {
+                const newMessages: ChatMessage[] = await getNewMessages(contract, chatId, conversation.current.length);
+                if (newMessages) {
+                  const lastMessage = newMessages.at(-1);
+                  if (lastMessage) {
+                    if (lastMessage.role == "assistant") {
+                      conversation.current = [
+                        ...conversation.current,
+                        { content: lastMessage.content, role: "assistant" },
+                      ];
+                      break;
+                    } else {
+                      // Simple solution to show function results, not ideal
+                      conversation.current = [
+                        ...conversation.current,
+                        { content: lastMessage.content, role: "user" },
+                      ];
+                    }
                   }
                 }
+                await new Promise((resolve) => setTimeout(resolve, 2000));
               }
-              await new Promise((resolve) => setTimeout(resolve, 2000));
             }
           }
           setIsLoading(false);
@@ -163,8 +164,7 @@ const Chat = (props: ChatProps, ref: React.RefObject<ChatGPInstance>) => {
         const parsedLog = contract.interface.parseLog(log);
         if (parsedLog && parsedLog.name === "ChatCreated") {
           // Second event argument
-          chatId = ethers.toNumber(parsedLog.args[1]);
-          setChatId(chatId);
+          chatId = ethers.toNumber(parsedLog.args[1])
         }
       } catch (error) {
         // This log might not have been from your contract, or it might be an anonymous log
