@@ -74,6 +74,26 @@ const fetchChainList = async () => {
   }
 }
 
+const fetchTokenList = async (chainId?: string | number) => {
+  try {
+    const response = await fetch( chainId ? `https://api.0xsquid.com/v1/tokens?chainId=${chainId}` : 'https://api.0xsquid.com/v1/tokens');
+    const allTokens = (await response.json()).tokens;
+    const fuseOptions = {
+      keys: [
+        {name: 'symbol', weight: 1},
+        {name: 'name', weight: 0.8},
+        {name: 'coingecko-id', weight: 0.5},
+      ],
+      threshold: 0.2
+    }
+    const fusedChains = new Fuse(allTokens, fuseOptions)
+    return(fusedChains);
+  } catch (error) {
+    console.error('Error fetching token data:', error);
+    return [];
+  }
+}
+
 function bigIntReplacer(key, value) {
   if (typeof value === 'bigint') {
     return value.toString();
@@ -92,7 +112,7 @@ const App = () => {
     queryKey: ["tokenBalances", address],
     queryFn: () => fetchTodayTokenBalances(address as string),
     enabled: !!address,
-    staleTime: 1000 * 60 * 60,
+    staleTime: 1000 * 60 * 60, // 1 hour
   });
   const { data: portfolioHistory } = useQuery({
     queryKey: ["portfolioHistory", address],
@@ -101,11 +121,17 @@ const App = () => {
     staleTime: 1000 * 60 * 60, // 1 hour
   });
   const { data: searchableChains } = useQuery({
-    queryKey: ["chainList", address],
+    queryKey: ["chainList"],
     queryFn: () => fetchChainList(),
     staleTime: 1000 * 60 * 60 * 24 * 60, // 60 days
   });
+  const { data: searchableTokens } = useQuery({
+    queryKey: ["tokenList"],
+    queryFn: () => fetchTokenList(),
+    staleTime: 1000 * 60 * 60 * 24 * 60, // 60 days
+  });
   if (searchableChains) console.log(searchableChains.search('base')[0]);
+  if (searchableTokens) console.log(searchableTokens.search('usdc')[0]);
 
   useEffect(() => {
     chatProvider.onCreateChat?.(chatProvider.DefaultPersonas[0]) // TODO : set personas
