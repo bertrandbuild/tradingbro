@@ -3,9 +3,13 @@ import { Chain, CovalentClient } from "@covalenthq/client-sdk";
 import TokenTable from "./Components/TokenTable"; // Import the TokenTable component
 import { useAccount } from "wagmi";
 import Loading from "./Components/Loading";
+import Chat from "./Components/Chat/Chat";
+import { useChatHook } from "./Components/Chat";
 
 const isDevMode = import.meta.env.DEV;
-const networks = isDevMode ? ["eth-mainnet"] : ["eth-mainnet", "matic-mainnet", "arbitrum-mainnet", "base-mainnet"];
+const networks = isDevMode
+  ? ["eth-mainnet"]
+  : ["eth-mainnet", "matic-mainnet", "arbitrum-mainnet", "base-mainnet"];
 const client = new CovalentClient(import.meta.env.VITE_COVALENT_API_KEY);
 
 const fetchTodayTokenBalances = async (address: string) => {
@@ -31,10 +35,11 @@ const fetchPortfolioHistory = async (address: string) => {
 
   for (const network of networks) {
     try {
-      const resp = await client.BalanceService.getHistoricalPortfolioForWalletAddress(
-        network as Chain,
-        address
-      );
+      const resp =
+        await client.BalanceService.getHistoricalPortfolioForWalletAddress(
+          network as Chain,
+          address
+        );
       allData.push({ ...resp.data, chain_name: network });
     } catch (error) {
       console.error(`Failed to fetch data for network ${network}:`, error);
@@ -46,6 +51,7 @@ const fetchPortfolioHistory = async (address: string) => {
 
 const App = () => {
   const { address } = useAccount();
+  const provider = useChatHook();
   const { data, isLoading, isError } = useQuery({
     queryKey: ["tokenBalances", address],
     queryFn: () => fetchTodayTokenBalances(address as string),
@@ -73,18 +79,21 @@ const App = () => {
       )}
       <w3m-button />
       {data && address && data.length > 0 && (
-        <TokenTable
-          data={data.map((item) => ({
-            ...item,
-            items: item.items.map((balanceItem) => ({
-              ...balanceItem,
-              balance:
-                balanceItem.balance !== null
-                  ? BigInt(balanceItem.balance)
-                  : BigInt(0),
-            })),
-          }))}
-        />
+        <>
+          <Chat ref={provider.chatRef} />
+          <TokenTable
+            data={data.map((item) => ({
+              ...item,
+              items: item.items.map((balanceItem) => ({
+                ...balanceItem,
+                balance:
+                  balanceItem.balance !== null
+                    ? BigInt(balanceItem.balance)
+                    : BigInt(0),
+              })),
+            }))}
+          />
+        </>
       )}
     </div>
   );

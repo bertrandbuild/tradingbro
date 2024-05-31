@@ -26,6 +26,12 @@ $ forge test
 forge create --rpc-url "https://devnet.galadriel.com" --private-key <your_private_key> src/ChatGpt.sol:ChatGpt --constructor-args 0x4168668812C94a3167FCd41D12014c5498D74d7e
 ```
 
+### Generate ABIs
+
+```shell
+forge build --silent && jq '.abi' contracts/out/ChatGpt.sol/ChatGpt.json
+```
+
 ### Help
 
 ```shell
