@@ -27,7 +27,7 @@ const Message = (props: MessageProps) => {
   }, [content, copy])
 
   return (
-    <div className="flex gap-4 mb-5">
+    <div className="message flex gap-4 mb-5">
       <div className="avatar">
         <div className={`size-8 ${isUser ? '' : 'bg-green-500'} rounded-full`}>
           {isUser ? <HiUser className="text-2xl" /> : <RiRobot2Line className="text-2xl" />}

@@ -196,6 +196,11 @@ const useChatHook = () => {
     }
   }
 
+  const sendMessage = (message: string) => {
+    if (!chatRef.current) return;
+    chatRef.current.sendMessage(message)
+  }
+
   const saveChatId = (chatId: number) => {
     const chatList = (JSON.parse(localStorage.getItem(StorageKeys.Chat_List) || '[]') ||
       []) as Chat[]
@@ -291,6 +296,7 @@ const useChatHook = () => {
     onClosePersonaPanel,
     onToggleSidebar,
     forceUpdate,
+    sendMessage,
     saveChatId
   }
 }
