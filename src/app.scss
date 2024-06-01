@@ -1,0 +1,15 @@
+.avatar {
+  width: 100%;
+  div {
+    margin: 0 auto;
+    // width: 50%;
+    max-width: 600px;
+    filter: drop-shadow(0 0 2em #4b4b4baa);
+  }
+}
+
+.connect-button {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}

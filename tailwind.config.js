@@ -11,4 +11,11 @@ export default {
     extend: {},
   },
   plugins: [typography, daisyui],
+  daisyui: {
+    styled: true,
+    themes: [
+      "dracula",
+      "retro",
+    ],
+  }
 }
