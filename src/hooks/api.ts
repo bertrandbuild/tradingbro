@@ -57,7 +57,6 @@ export const fetchChainList = async (): Promise<Fuse<Chain>> => {
         { name: 'chainName', weight: 0.5 },
         { name: 'networkName', weight: 0.5 },
       ],
-      threshold: 0.2,
     };
     const fusedChains = new Fuse(allChains, fuseOptions);
     console.log(fusedChains);
@@ -79,8 +78,8 @@ export const fetchTokenList = async (chainId?: string | number) => {
         { name: 'symbol', weight: 1 },
         { name: 'name', weight: 0.8 },
         { name: 'coingecko-id', weight: 0.5 },
+        { name: 'chainId', weight: 0.2 },
       ],
-      threshold: 0.2,
     };
     const fusedTokens = new Fuse(allTokens, fuseOptions);
     return fusedTokens;
