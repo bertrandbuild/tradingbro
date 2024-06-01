@@ -95,28 +95,34 @@ const generateSquidConfigObject = (
   );
   const { fromChain, fromAmount, fromToken, toChain, toToken } = squidObject;
 
-  const { data: searchableChains } = useChainList();
-  console.log(searchableChains);
-  const formattedFromChain = searchableChains?.search(fromChain)[0].item.chainId || fromChain;
-  const formattedToChain = searchableChains?.search(toChain)[0].item.chainId || toChain;
-  const { data: searchableFromTokens } = useTokenList(formattedFromChain);
-  const { data: searchableToTokens } = useTokenList(formattedToChain);
-  const formattedFromToken = searchableFromTokens?.search(fromToken)[0].item.address || fromToken;
-  const formattedToToken = searchableToTokens?.search(toToken)[0].item.address || toToken;
-
-  return {
-    fromChain: formattedFromChain,
-    fromAmount,
-    fromToken: formattedFromToken,
-    toChain: formattedToChain,
-    toToken: formattedToToken,
-    fromAddress: address,
-    toAddress: address,
-    bypassGuardRails: true,
-    slippageConfig: {
-      autoMode: 1,
+  try {
+    const { data: searchableChains } = useChainList();
+    console.log(searchableChains);
+    const formattedFromChain = searchableChains?.search(fromChain)[0].item.chainId || fromChain;
+    const formattedToChain = searchableChains?.search(toChain)[0].item.chainId || toChain;
+    const { data: searchableFromTokens } = useTokenList(formattedFromChain);
+    const { data: searchableToTokens } = useTokenList(formattedToChain);
+    const formattedFromToken = searchableFromTokens?.search(fromToken)[0].item.address || fromToken;
+    const formattedToToken = searchableToTokens?.search(toToken)[0].item.address || toToken;
+  
+    return {
+      fromChain: formattedFromChain,
+      fromAmount,
+      fromToken: formattedFromToken,
+      toChain: formattedToChain,
+      toToken: formattedToToken,
+      fromAddress: address,
+      toAddress: address,
+      bypassGuardRails: true,
+      slippageConfig: {
+        autoMode: 1,
+      }
     }
-  };
+  } catch (e) {
+    console.error(e);
+    return {};
+  }
+
 };
 
 const AddSquidButton = (

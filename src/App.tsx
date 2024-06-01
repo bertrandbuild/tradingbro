@@ -23,17 +23,26 @@ const App = () => {
   } = useTokenBalances(address || "");
 
   useEffect(() => {
-    chatProvider.onCreateChat?.(chatProvider.DefaultPersonas[0]); // TODO : set personas
+    chatProvider.onCreateChat?.(chatProvider.DefaultPersonas[0]);
     if (!tokenBalances) return;
-    chatProvider.sendMessage(`Here is my portfolio details, do a very short wallet analysis and suggest me at least two or three trades to optimize my portfolio.
-    Use the following syntax to suggest a trade : [SQUID: fromChain: "<the chain name>", fromAmount: "<suggested amount in gwei or similar>", fromToken: "<the 'from' token symbol>", toChain: "<the chain name>", toToken: "<the 'to' token symbol>"]
+    chatProvider.sendMessage(`
+    Request : Here is my portfolio details, suggest me at least two or three trades to optimize my portfolio (ps: you can suggest memecoin but only the large caps and only on ethereum).
+    Instruction : answer with the following JSON (!always verify that you return a VALID json, with a valid amount!) : 
+      {
+        globalRecommandation: "a short analysis of the wallet and your suggestion, make it fun based on your personnality of degen who like highly volatile markets and is bored by major coins",
+        recommendations: [{
+          title: "give the trade a a meaningful title",
+          explanation: "explain here why you recommend this trade, the estimated profit and timeline",
+          swapInfo: {
+            fromAmount: "add the trade size in wei",
+            fromChain: "add the original chain name, should be 'ethereum'",
+            fromToken: "add the original token name, like 'usdc'",
+            toChain: "add the target chain name, should be 'ethereum'",
+            toToken: "add the target token name, like 'aave",
+          }
+        }]
+      }
     
-    Important rules to follow:
-      - If there is no balance in the portfolio, suggest this hypothetical tx : [...] as an example, you could buy some Eth : [SQUID: fromChain: "ethereum", fromAmount: "10000000000000000", fromToken: "USDC", toChain: "ethereum", toToken: "eth"].
-      - Prefer trades that stay on the same chain to save on cross-chain fees, unless there's a significant advantage to moving across chains.
-      - Always return the [SQUID:...] syntax with an explanation a suggestion in your message.
-      - Always return the [SQUID:...] syntax as a new line but NEVER inside a code block.
-
     Portfolio details : ${JSON.stringify(tokenBalances, bigIntReplacer)}`);
   }, [tokenBalances]);
 
@@ -67,7 +76,7 @@ const App = () => {
         {/* HOME */}
         {!isConnected && 
           <div className="text-center mt-8">
-            <p className="prose mb-4 m-auto lg:prose-xl">Meet <strong>Archie "Ace" Thompson</strong>, a legendary trader from the 1920s, <br />known for his bold market moves and sharp instincts.
+            <p className="prose mb-4 m-auto lg:prose-xl">Meet <strong>Archie Thompson</strong>, know as "Ace The Analyst", a legendary trader from the 1920s <br />famous for his bold market moves and sharp (degen) instincts.
             <br /><br />Connect to receive a custom analysis of your portfolio.</p>
             <div className="connect-button">
               <w3m-button/>

@@ -262,7 +262,7 @@ const ChatSingleRequest = (props: ChatProps, ref: React.RefObject<ChatGPInstance
       style={{ backgroundColor: "var(--background-color)" }}
     >
       <div className="flex-1 overflow-y-auto" style={{ height: "100%" }}>
-        {/* {requestHast && (
+        {requestHast && (
           <div>
             Transaction hash:
             <a className="underline pl-2"
@@ -272,7 +272,7 @@ const ChatSingleRequest = (props: ChatProps, ref: React.RefObject<ChatGPInstance
               {requestHast}
             </a>
           </div>
-        )} */}
+        )}
         {conversation.current.map((item, index) => (
           <Analysis key={index} message={item} />
         ))}
