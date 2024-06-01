@@ -46,7 +46,7 @@ export const fetchPortfolioHistory = async (address: string) => {
   return allData;
 };
 
-export const fetchChainList = async (): Promise<Fuse<Chain>> => {
+export const fetchChainList = async (): Promise<Fuse<unknown>> => {
   try {
     const response = await fetch('https://api.0xsquid.com/v1/chains');
     const allChains = (await response.json()).chains;
