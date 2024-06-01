@@ -6,7 +6,8 @@ import { useTokenBalances } from "./hooks/api";
 import "./app.scss";
 import ChatSingleRequest from "./Components/Chat/ChatSingleRequest";
 
-function bigIntReplacer(key, value) {
+function bigIntReplacer(key: unknown, value: unknown) {
+  console.log(key)
   if (typeof value === "bigint") {
     return value.toString();
   }

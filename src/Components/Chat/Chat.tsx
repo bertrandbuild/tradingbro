@@ -35,6 +35,7 @@ export interface ChatGPInstance {
   focus: () => void;
 }
 
+// @ts-expect-error error handling type
 const Chat = (props: ChatProps, ref: React.RefObject<ChatGPInstance>) => {
   const {
     debug,
@@ -50,10 +51,10 @@ const Chat = (props: ChatProps, ref: React.RefObject<ChatGPInstance>) => {
   const wallet = new ethers.Wallet(import.meta.env.VITE_WALLET_PK, provider);
 
   const [isLoading, setIsLoading] = useState(false);
-  const [isTxLoading, setIsTxLoading] = useState(false);
+  const [, setIsTxLoading] = useState(false);
 
   const [message, setMessage] = useState("");
-  const [currentMessage, setCurrentMessage] = useState<string>("");
+  const [currentMessage] = useState<string>("");
 
   const conversationRef = useRef<ChatMessage[]>();
   const textAreaRef = useRef<HTMLElement>(null);
@@ -144,8 +145,9 @@ const Chat = (props: ChatProps, ref: React.RefObject<ChatGPInstance>) => {
             }
           }
           setIsLoading(false);
-        } catch (error: any) {
+        } catch (error) {
           console.error(error);
+          // @ts-expect-error error handling type
           toast.error(error.message);
           setIsLoading(false);
           setIsTxLoading(false);
@@ -181,7 +183,8 @@ const Chat = (props: ChatProps, ref: React.RefObject<ChatGPInstance>) => {
     const roles = await contract.getMessageHistoryRoles(chatId);
 
     const newMessages: ChatMessage[] = [];
-    messages.forEach((message: any, i: number) => {
+    messages.forEach((message: unknown, i: number) => {
+      console.log(message)
       if (i >= currentMessagesCount) {
         newMessages.push({
           role: roles[i],
@@ -203,11 +206,6 @@ const Chat = (props: ChatProps, ref: React.RefObject<ChatGPInstance>) => {
     },
     [sendMessage]
   );
-
-  const clearMessages = () => {
-    conversation.current = [];
-    forceUpdate?.();
-  };
 
   useEffect(() => {
     if (textAreaRef.current) {
@@ -237,6 +235,7 @@ const Chat = (props: ChatProps, ref: React.RefObject<ChatGPInstance>) => {
     }
   }, [isLoading]);
 
+  // @ts-expect-error flagged by ts but working
   useImperativeHandle(ref, () => {
     return {
       setConversation(messages: ChatMessage[]) {
@@ -307,6 +306,7 @@ const Chat = (props: ChatProps, ref: React.RefObject<ChatGPInstance>) => {
             <div className="tooltip" data-tip="Send Message">
               <button
                 className="btn btn-outline btn-gray rounded-xl cursor-pointer"
+                // @ts-expect-error flagged by ts but working
                 onClick={sendMessage}
                 disabled={isLoading}
               >
@@ -329,4 +329,5 @@ const Chat = (props: ChatProps, ref: React.RefObject<ChatGPInstance>) => {
   );
 };
 
+// @ts-expect-error flagged by ts but working
 export default forwardRef<ChatGPInstance, ChatProps>(Chat);

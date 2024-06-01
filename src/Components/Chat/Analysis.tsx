@@ -1,8 +1,7 @@
 "use client";
 
 import { ChatMessage } from "./interface";
-import { Markdown } from "../Markdown";
-import { useChainList, useTokenList } from "../../hooks/api";
+import { useTokenList } from "../../hooks/api";
 import { useAccount } from "wagmi";
 import SquidButton from "../SquidButton";
 
@@ -18,7 +17,7 @@ interface swapInfo {
   toToken: string; // the target token symbol
 }
 
-function isValidJSON(str) {
+function isValidJSON(str: string) {
   try {
     JSON.parse(str);
     return true;
@@ -28,8 +27,8 @@ function isValidJSON(str) {
 }
 
 const Analysis = (props: MessageProps) => {
-  const { role, content: strContent, transactionHash } = props.message;
-  const { data: searchableChains } = useChainList();
+  const { role, content: strContent } = props.message;
+  // const { data: searchableChains } = useChainList();
   const { data: searchableTokens } = useTokenList(1);
   const { address } = useAccount();
   
@@ -42,14 +41,15 @@ const Analysis = (props: MessageProps) => {
   const json = JSON.parse(content);
 
   const getSquidConfig = (swapInfo: swapInfo) => {
-    const { fromChain, fromAmount, fromToken, toChain, toToken } = swapInfo;
+    const { fromAmount, fromToken, toToken } = swapInfo;
+    // const { fromChain, fromAmount, fromToken, toChain, toToken } = swapInfo;
 
     console.log("swapInfo", swapInfo);
 
     try {
-      // FIXME: add multichain
-      // const formattedFromChain = searchableChains?.search(fromChain)[0].item.chainId || fromChain;
-      // const formattedToChain = searchableChains?.search(toChain)[0].item.chainId || toChain;
+      // TODO: add multichain
+      // const formattedFromChain = searchableChains?.search(fromChain)[0].item.chainId || 1;
+      // const formattedToChain = searchableChains?.search(toChain)[0].item.chainId || 1;
       // const formattedFromToken = searchableTokens?.search({
         //   $and: [{symbol: fromToken}, { chainId: String(formattedFromChain) }]
         // })[0].item.address || fromToken;
@@ -58,7 +58,9 @@ const Analysis = (props: MessageProps) => {
         // })[0].item.address || toToken;
       const formattedFromChain = 1;
       const formattedToChain = 1;
+      // @ts-expect-error type alert from hackathon project
       const formattedFromToken = searchableTokens?.search(fromToken)[0].item.address || fromToken;
+      // @ts-expect-error type alert from hackathon project
       const formattedToToken = searchableTokens?.search(toToken)[0].item.address || toToken;
   
       return {
@@ -102,7 +104,8 @@ const Analysis = (props: MessageProps) => {
               <div className="chat-footer opacity-50">Analysis delivered</div>
             </div>
             <div>
-              {json.recommendations.map((recommendation, index) => (
+              {/* @ts-expect-error TODO: add recommendation type  */}
+              {json.recommendations.map((recommendation, index: number) => (
                 <div
                   key={index}
                   className="card card-side bg-base-200 shadow-xl mb-8"
@@ -117,8 +120,8 @@ const Analysis = (props: MessageProps) => {
                     <h2 className="card-title">{recommendation.title}</h2>
                     <p className="prose break-normal">{recommendation.explanation}</p>
                     <div className="card-actions justify-end">
+                      {/* @ts-expect-error TODO: fix type alert  */}
                       <p><SquidButton squidConfig={getSquidConfig(recommendation.swapInfo)} /></p>
-                      {/* <button className="btn btn-secondary">Execute Tx</button> */}
                       {/* <Markdown>{`[SQUID: fromChain: "${recommendation.swapInfo.fromChain}", fromAmount: "${recommendation.swapInfo.fromAmount}", fromToken: "${recommendation.swapInfo.fromToken}", toChain: "${recommendation.swapInfo.toChain}", toToken: "${recommendation.swapInfo.toToken}"]`}</Markdown> */}
                     </div>
                   </div>

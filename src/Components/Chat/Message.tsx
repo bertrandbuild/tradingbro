@@ -6,7 +6,6 @@ import { HiUser } from 'react-icons/hi'
 import { RiRobot2Line } from 'react-icons/ri'
 import { ChatMessage } from './interface'
 import { useCopyToClipboard } from '../../hooks/useCopyToClipboard'
-import { Markdown } from '../Markdown'
 
 export interface MessageProps {
   message: ChatMessage
@@ -16,7 +15,7 @@ const Message = (props: MessageProps) => {
   const { role, content, transactionHash } = props.message
   const isUser = role === 'user'
   const copy = useCopyToClipboard()
-  const [tooltipOpen, setTooltipOpen] = useState<boolean>(false)
+  const [, setTooltipOpen] = useState<boolean>(false)
 
   const onCopy = useCallback(() => {
     copy(content, (isSuccess) => {
@@ -63,7 +62,7 @@ const Message = (props: MessageProps) => {
           </>
         ) : (
           <div className="flex flex-col gap-4">
-            <Markdown>{content}</Markdown>
+            {content}
             {/* {content} */}
             <div className="flex gap-4 items-center">
               <div className="tooltip" data-tip="Copied!">

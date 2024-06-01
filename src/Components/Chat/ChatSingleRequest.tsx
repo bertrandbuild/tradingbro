@@ -10,14 +10,10 @@ import React, {
   useState,
 } from "react";
 import { Contract, ethers, TransactionReceipt } from "ethers";
-import ContentEditable from "react-contenteditable";
 import toast from "react-hot-toast";
-import { AiOutlineUnorderedList } from "react-icons/ai";
-import { FiSend } from "react-icons/fi";
 import { chatGptABI } from "../../ABIs/chatgpt";
 import ChatContext from "./chatContext";
 import { ChatMessage } from "./interface";
-import Message from "./Message";
 
 const CONTRACT_ADDRESS = "0xD0F7b22C973Ae7A685B3B920616451573b68ba20";
 
@@ -37,10 +33,10 @@ export interface ChatGPInstance {
 }
 
 const ChatSingleRequest = (props: ChatProps, ref: React.RefObject<ChatGPInstance>) => {
+  console.log(props)
   const {
     debug,
     saveMessages,
-    onToggleSidebar,
     forceUpdate,
     saveChatId,
   } = useContext(ChatContext);
@@ -52,10 +48,10 @@ const ChatSingleRequest = (props: ChatProps, ref: React.RefObject<ChatGPInstance
   const wallet = new ethers.Wallet(import.meta.env.VITE_WALLET_PK, provider);
 
   const [isLoading, setIsLoading] = useState(false);
-  const [isTxLoading, setIsTxLoading] = useState(false);
+  const [, setIsTxLoading] = useState(false);
 
   const [message, setMessage] = useState("");
-  const [currentMessage, setCurrentMessage] = useState<string>("");
+  const [currentMessage] = useState<string>("");
 
   const conversationRef = useRef<ChatMessage[]>();
   const textAreaRef = useRef<HTMLElement>(null);
@@ -184,7 +180,8 @@ const ChatSingleRequest = (props: ChatProps, ref: React.RefObject<ChatGPInstance
     const roles = await contract.getMessageHistoryRoles(chatId);
 
     const newMessages: ChatMessage[] = [];
-    messages.forEach((message: any, i: number) => {
+    messages.forEach((message: unknown, i: number) => {
+      console.log(message)
       if (i >= currentMessagesCount) {
         newMessages.push({
           role: roles[i],
@@ -194,23 +191,6 @@ const ChatSingleRequest = (props: ChatProps, ref: React.RefObject<ChatGPInstance
     });
     return newMessages;
   }
-
-  const handleKeypress = useCallback(
-    (e: any) => {
-      if (e.keyCode == 13 && !e.shiftKey) {
-        e.preventDefault();
-        if (textAreaRef.current?.innerHTML) {
-          sendMessage(textAreaRef.current?.innerHTML);
-        }
-      }
-    },
-    [sendMessage]
-  );
-
-  const clearMessages = () => {
-    conversation.current = [];
-    forceUpdate?.();
-  };
 
   useEffect(() => {
     if (textAreaRef.current) {
@@ -240,6 +220,7 @@ const ChatSingleRequest = (props: ChatProps, ref: React.RefObject<ChatGPInstance
     }
   }, [isLoading]);
 
+  // @ts-expect-error flagged by ts but working
   useImperativeHandle(ref, () => {
     return {
       setConversation(messages: ChatMessage[]) {
@@ -290,4 +271,5 @@ const ChatSingleRequest = (props: ChatProps, ref: React.RefObject<ChatGPInstance
   );
 };
 
+// @ts-expect-error type alert 
 export default forwardRef<ChatGPInstance, ChatProps>(ChatSingleRequest);

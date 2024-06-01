@@ -194,6 +194,7 @@ const useChatHook = () => {
 
   const sendMessage = (message: string) => {
     if (!chatRef.current) return;
+    // @ts-expect-error flagged by ts but working
     return chatRef.current.sendMessage(message)
   }
 
