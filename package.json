@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@0xsquid/sdk": "2.8.0-beta.0",
+    "@0xsquid/squid-types": "^0.1.75",
     "@covalenthq/client-sdk": "^1.0.2",
     "@covalenthq/goldrush-kit": "^0.6.2",
     "@tailwindcss/typography": "^0.5.13",
