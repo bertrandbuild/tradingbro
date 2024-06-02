@@ -1,0 +1,9 @@
+{
+  "sites": [
+    {
+      "slug": "flat-twilight-sparse",
+      "distDir": "dist",
+      "buildCommand": "bun install && bun run build"
+    }
+  ]
+}

@@ -14,6 +14,7 @@
     "@0xsquid/squid-types": "^0.1.75",
     "@covalenthq/client-sdk": "^1.0.2",
     "@covalenthq/goldrush-kit": "^0.6.2",
+    "@fleekxyz/cli": "^1.3.91",
     "@tailwindcss/typography": "^0.5.13",
     "@tanstack/react-query": "^5.40.0",
     "@web3modal/wagmi": "^4.2.2",
