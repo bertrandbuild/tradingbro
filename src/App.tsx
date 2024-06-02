@@ -77,7 +77,7 @@ const App = () => {
         {/* HOME */}
         {!isConnected && 
           <div className="text-center mt-8">
-            <p className="prose mb-4 m-auto lg:prose-xl">Meet <strong>Archie Thompson</strong>, know as "Ace The Analyst", a legendary trader from the 1920s <br />famous for his bold market moves and sharp (degen) instincts.
+            <p className="prose mb-4 m-auto lg:prose-xl">Meet <strong>Archie Thompson</strong>, known as "Ace The Analyst", a legendary trader from the 1920s,<br />famous for his bold market moves and sharp (degen) instincts.
             <br /><br />Connect to receive a custom analysis of your portfolio.</p>
             <div className="connect-button">
               <w3m-button/>
