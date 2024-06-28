@@ -57,7 +57,7 @@ const App = () => {
     <div className="container mx-auto p-4">
       {/* HEADER */}
       <header className="flex justify-between items-center my-4">
-        <h1 className="text-2xl font-bold">The Analyst</h1>
+        <h1 className="text-2xl font-bold">Trade with Satoshi</h1>
         <div className="flex">
           {isConnected && <w3m-button/>}
           <label className="swap swap-rotate ml-2">
@@ -69,21 +69,27 @@ const App = () => {
       </header>
       {/* MAIN */}
       <section>
-        <div className="avatar">
-          <div className="rounded-full w-96">
-            <img src="https://i.ibb.co/S7nPFkJ/3beeec2e-2069-4ad1-8de4-2671a9c9c8f5.jpg" />
+        {/* HOME */}
+        <div className="hero mt-32">
+          <div className="hero-content flex-col lg:flex-row-reverse">
+            <img
+              src="https://assets.zootools.co/users/PiL0Turm2GbFgCcZ1NYn/assets/zfiCjupkCEd20jc"
+              className="shadow-2xl rounded-full w-96 h-96 object-cover"
+            />
+            {!isConnected && 
+              <div className="text-center mt-8">
+                <h1 className="text-5xl font-bold">Receive a custom portfolio analysis !</h1>
+                <p className="prose my-4 m-auto lg:prose-xl w-2/3">
+                  Meet <strong>Satoshi</strong>, known as "The cutting edge",<br />
+                  a legendary Shinobi trader from Japan, famous for his spying techniques and bold market moves.
+                </p>
+                <div className="connect-button">
+                  <w3m-button/>
+                </div>
+              </div>
+            }
           </div>
         </div>
-        {/* HOME */}
-        {!isConnected && 
-          <div className="text-center mt-8">
-            <p className="prose mb-4 m-auto lg:prose-xl">Meet <strong>Archie Thompson</strong>, known as "Ace The Analyst", a legendary trader from the 1920s,<br />famous for his bold market moves and sharp (degen) instincts.
-            <br /><br />Connect to receive a custom analysis of your portfolio.</p>
-            <div className="connect-button">
-              <w3m-button/>
-            </div>
-          </div>
-        }
         {/* PAGE DETAILS */}
         {isConnectedWithAsset && 
           <section>

@@ -91,13 +91,13 @@ const Analysis = (props: MessageProps) => {
               <div className="chat-image avatar">
                 <div className="w-10 rounded-full">
                   <img
-                    alt="avatar ace"
-                    src="https://i.ibb.co/HPMG2k4/Screenshot-2024-06-01-at-19-42-45.png"
+                    alt="avatar satoshi"
+                    src="https://assets.zootools.co/users/PiL0Turm2GbFgCcZ1NYn/assets/zfiCjupkCEd20jc"
                   />
                 </div>
               </div>
               <div className="chat-header mt-8">
-                Ace The Analyst
+                Satoshi
                 {/* <time className="text-xs opacity-50">12:45</time> */}
               </div>
               <div className="chat-bubble prose break-normal">{json.globalRecommandation}</div>
