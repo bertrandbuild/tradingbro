@@ -19,7 +19,7 @@ import ChatContext from "./chatContext";
 import { ChatMessage } from "./interface";
 import Message from "./Message";
 
-const CONTRACT_ADDRESS = "0xD0F7b22C973Ae7A685B3B920616451573b68ba20";
+const CONTRACT_ADDRESS = import.meta.env.VITE_CONTRACT_ADDRESS;
 
 import "./index.scss";
 import useChatHook from "./useChatHook";

@@ -6,7 +6,7 @@ import "../src/ChatGpt.sol";
 
 contract ChatGptTest is Test {
     ChatGpt public chatGpt;
-    address public oracleAddress = 0x4168668812C94a3167FCd41D12014c5498D74d7e;
+    address public oracleAddress = 0x68EC9556830AD097D661Df2557FBCeC166a0A075;
 
     address public owner = address(0x123);
     address public user = address(0x456);

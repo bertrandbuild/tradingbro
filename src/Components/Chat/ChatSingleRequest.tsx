@@ -15,7 +15,7 @@ import { chatGptABI } from "../../ABIs/chatgpt";
 import ChatContext from "./chatContext";
 import { ChatMessage } from "./interface";
 
-const CONTRACT_ADDRESS = "0xD0F7b22C973Ae7A685B3B920616451573b68ba20";
+const CONTRACT_ADDRESS = import.meta.env.VITE_CONTRACT_ADDRESS;
 
 import "./index.scss";
 import useChatHook from "./useChatHook";
@@ -120,6 +120,7 @@ const ChatSingleRequest = (props: ChatProps, ref: React.RefObject<ChatGPInstance
 
               while (true) {
                 const newMessages: ChatMessage[] = await getNewMessages(contract, chatId, conversation.current.length);
+                console.log(newMessages)
                 if (newMessages) {
                   const lastMessage = newMessages.at(-1);
                   if (lastMessage) {
@@ -178,6 +179,7 @@ const ChatSingleRequest = (props: ChatProps, ref: React.RefObject<ChatGPInstance
   ): Promise<ChatMessage[]> {
     const messages = await contract.getMessageHistoryContents(chatId);
     const roles = await contract.getMessageHistoryRoles(chatId);
+    console.log("messages = ", messages, roles);
 
     const newMessages: ChatMessage[] = [];
     messages.forEach((message: unknown, i: number) => {
