@@ -1,7 +1,7 @@
 import { useAccount } from "wagmi";
 import Loading from "./Components/Loading";
 import { useChatHook } from "./Components/Chat";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useTokenBalances } from "./hooks/api";
 import "./app.scss";
 import ChatSingleRequest from "./Components/Chat/ChatSingleRequest";
@@ -17,6 +17,7 @@ function bigIntReplacer(key: unknown, value: unknown) {
 const App = () => {
   const { address } = useAccount();
   const chatProvider = useChatHook();
+  const [strategyContent, setStrategyContent] = useState('');
   const {
     data: tokenBalances,
     isError,
@@ -25,13 +26,14 @@ const App = () => {
 
   useEffect(() => {
     chatProvider.onCreateChat?.(chatProvider.DefaultPersonas[0]);
+    if(new URLSearchParams(window.location.search).get('hash') !== null && !strategyContent) return
     if (!tokenBalances) return;
     chatProvider.sendMessage(`
-    Request : Here is my portfolio details, suggest me at least two or three trades to optimize my portfolio (ps: you can suggest memecoin but only the large caps and only on ethereum).
-    Instruction : answer with the following JSON (!always verify that you return a VALID json, with a valid amount!) : 
-      {
-        globalRecommandation: "a short analysis of the wallet and your suggestion, make it fun based on your personnality of degen who like highly volatile markets and is bored by major coins",
-        recommendations: [{
+    Task : as an asset manager, make a portfolio analysis and suggest me two or three trades to optimize my portfolio.
+    Instruction : return ONLY a JSON following this template (!always verify that you return ONLY a VALID json, with valid amounts and without comments!) : {
+      globalRecommandation: "a short analysis of the wallet and your suggestion",
+      recommendations: [
+        {          
           title: "give the trade a a meaningful title",
           explanation: "explain here why you recommend this trade, the estimated profit and timeline",
           swapInfo: {
@@ -41,11 +43,33 @@ const App = () => {
             toChain: "add the target chain name, should be 'ethereum'",
             toToken: "add the target token name, like 'aave",
           }
-        }]
-      }
+        }
+      ]
+    }
     
-    Portfolio details : ${JSON.stringify(tokenBalances, bigIntReplacer)}`);
-  }, [tokenBalances]);
+    Portfolio details : ${JSON.stringify(tokenBalances, bigIntReplacer)}
+
+
+    ${strategyContent ? `Investment strategies of the asset manager : ${JSON.stringify(strategyContent)}` : ''}
+    `);
+  }, [tokenBalances, strategyContent]);
+
+  // Load the config file if a hash is passed in params
+  useEffect(() => {
+    const urlQuery = new URLSearchParams(window.location.search);
+    const hash = urlQuery.get('hash') || ''; // 'param' is the name of the query parameter
+    fetch(`https://gateway.lighthouse.storage/ipfs/${hash}`)
+      .then(response => {
+        if (response.ok) return response.json();
+        throw new Error('Network response was not ok.');
+      })
+      .then(content => {
+          setStrategyContent(content);
+      })
+      .catch(error => {
+        console.error('Failed to save the file:', error);
+      });
+  }, []);
 
   if (isLoading) return <Loading />;
   if (isError) return <div className="text-red-500">Error fetching data</div>;
@@ -75,7 +99,7 @@ const App = () => {
         <div className="hero mt-32">
           <div className="hero-content flex-col lg:flex-row-reverse">
             <img
-              src="https://assets.zootools.co/users/PiL0Turm2GbFgCcZ1NYn/assets/zfiCjupkCEd20jc"
+              src={ strategyContent?.image ? strategyContent?.image : "https://assets.zootools.co/users/PiL0Turm2GbFgCcZ1NYn/assets/zfiCjupkCEd20jc"}
               className="shadow-2xl rounded-full w-96 h-96 object-cover"
             />
             {!isConnected && 

@@ -4,6 +4,7 @@ import { ChatMessage } from "./interface";
 import { useTokenList } from "../../hooks/api";
 import { useAccount } from "wagmi";
 import SquidButton from "../SquidButton";
+import { useEffect, useState } from "react";
 
 export interface MessageProps {
   message: ChatMessage;
@@ -28,6 +29,7 @@ function isValidJSON(str: string) {
 
 const Analysis = (props: MessageProps) => {
   const { role, content: strContent } = props.message;
+  const [img, setImg] = useState('https://assets.zootools.co/users/PiL0Turm2GbFgCcZ1NYn/assets/zfiCjupkCEd20jc');
   // const { data: searchableChains } = useChainList();
   const { data: searchableTokens } = useTokenList(1);
   const { address } = useAccount();
@@ -40,9 +42,27 @@ const Analysis = (props: MessageProps) => {
   if (!isValidJSON(content)) return;
   const json = JSON.parse(content);
 
+  // TODO: move into context
+  // Load the config file if a hash is passed in params
+  useEffect(() => {
+    const urlQuery = new URLSearchParams(window.location.search);
+    const hash = urlQuery.get('hash') || ''; // 'param' is the name of the query parameter
+    fetch(`https://gateway.lighthouse.storage/ipfs/${hash}`)
+      .then(response => {
+        if (response.ok) return response.json();
+        throw new Error('Network response was not ok.');
+      })
+      .then(content => {
+        setImg(content.image);
+      })
+      .catch(error => {
+        console.error('Failed to save the file:', error);
+      });
+  }, []);
+
   const getSquidConfig = (swapInfo: swapInfo) => {
-    const { fromAmount, fromToken, toToken } = swapInfo;
-    // const { fromChain, fromAmount, fromToken, toChain, toToken } = swapInfo;
+    const { fromAmount, fromToken, toToken } = swapInfo || {};
+    if (!fromAmount || !fromToken || !toToken) return;
 
     console.log("swapInfo", swapInfo);
 
@@ -92,7 +112,7 @@ const Analysis = (props: MessageProps) => {
                 <div className="w-10 rounded-full">
                   <img
                     alt="avatar satoshi"
-                    src="https://assets.zootools.co/users/PiL0Turm2GbFgCcZ1NYn/assets/zfiCjupkCEd20jc"
+                    src={img}
                   />
                 </div>
               </div>
