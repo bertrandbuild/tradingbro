@@ -262,7 +262,7 @@ const CryptoAllocationForm = () => {
                           <div className="space-y-4">
                             {strategy.assets.map((asset, assetIndex) => (
                               <div
-                                key={assetIndex}
+                                key={`${assetIndex}-${asset.symbol}`}
                                 className="grid grid-cols-2 gap-4"
                               >
                                 <div>

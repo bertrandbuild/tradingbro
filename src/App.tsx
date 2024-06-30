@@ -7,17 +7,30 @@ import "./app.scss";
 import ChatSingleRequest from "./Components/Chat/ChatSingleRequest";
 
 function bigIntReplacer(key: unknown, value: unknown) {
-  console.log(key)
+  console.log(key);
   if (typeof value === "bigint") {
     return value.toString();
   }
   return value;
 }
 
+function sanitizeImageUrl(input: string) {
+  try {
+    const url = new URL(input);
+    const allowedProtocols = ["http:", "https:", "data:"];
+    if (!allowedProtocols.includes(url.protocol)) {
+      throw new Error("Disallowed protocol");
+    }
+    return url.toString();
+  } catch (error) {
+    console.error("Sanitization error:", error);
+    return "";
+  }
+}
 const App = () => {
   const { address } = useAccount();
   const chatProvider = useChatHook();
-  const [strategyContent, setStrategyContent] = useState('');
+  const [strategyContent, setStrategyContent] = useState({ image: "" });
   const {
     data: tokenBalances,
     isError,
@@ -82,7 +95,7 @@ const App = () => {
       {/* HEADER */}
       <header className="flex justify-between items-center my-4">
         <a href="/">
-          <h1 className="text-2xl font-bold">Trade with Satoshi</h1>
+          <h1 className="text-2xl font-bold">TheAnalyst</h1>
         </a>
         <div className="flex">
           {isConnected && <w3m-button/>}
@@ -99,7 +112,11 @@ const App = () => {
         <div className="hero mt-32">
           <div className="hero-content flex-col lg:flex-row-reverse">
             <img
-              src={ strategyContent?.image ? strategyContent?.image : "https://assets.zootools.co/users/PiL0Turm2GbFgCcZ1NYn/assets/zfiCjupkCEd20jc"}
+              src={
+                strategyContent?.image
+                  ? sanitizeImageUrl(strategyContent.image)
+                  : "https://assets.zootools.co/users/PiL0Turm2GbFgCcZ1NYn/assets/zfiCjupkCEd20jc"
+              }
               className="shadow-2xl rounded-full w-96 h-96 object-cover"
             />
             {!isConnected && 
@@ -134,16 +151,20 @@ const App = () => {
         }
       </section>
       {/* FOOTER */}
-      <footer className="flex justify-between items-center mt-8">
+      <footer className="flex justify-between items-center mt-28">
         <p className="prose-sm text-gray-500">
           <a href="https://x.com/bertrandbuild" target="_blank" rel="noreferrer">
           By <span className="hover:underline">Bertrand</span>
           </a>
-          {' '}- With {' '}
+          {' '}- Built with : {' '}
           <a href="https://www.galadriel.com/" target="_blank" rel="noreferrer">
             <span className="hover:underline">Galadriel AI</span>
           </a>
-          {' '}and{' '}
+          {' '}|{' '}
+          <a href="https://www.lighthouse.storage/" target="_blank" rel="noreferrer">
+            <span className="hover:underline">lighthouse.storage</span>
+          </a>
+          {' '}|{' '}
           <a href="https://www.squidrouter.com/" target="_blank" rel="noreferrer">
             <span className="hover:underline">SquidRouter</span>
           </a>

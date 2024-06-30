@@ -1,5 +1,4 @@
 import { useAccount } from "wagmi";
-import Loading from "../Components/Loading";
 import "../app.scss";
 import CryptoAllocationForm from "../Components/customPromptForm";
 
@@ -12,7 +11,7 @@ const FormAddStrategy = () => {
       {/* HEADER */}
       <header className="flex justify-between items-center my-4">
         <a href="/">
-          <h1 className="text-2xl font-bold">Trade with Satoshi</h1>
+          <h1 className="text-2xl font-bold">TheAnalyst</h1>
         </a>
         <div className="flex">
           {isConnected && <w3m-button/>}

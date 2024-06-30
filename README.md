@@ -1,15 +1,15 @@
 # TheAnalyst
 
-TheAnalyst is a decentralized AI giving degen trading suggestion based on the user's portfolio.
+TheAnalyst is a decentralized AI giving portfolio analysis based on the user's portfolio.
+Asset managers can create their own custom prompt while keeping ownership.
 
-[Live demo](https://the-analyst.on-fleek.app/)
+[Live demo](https://tradingbro.vercel.app/)
 
 ![img](./docs/img.png)
 
 ## Stack
 
 - OnChain AI: [Galadriel AI L1](galadriel.com)
-- Swap & bridge: [SquidRouter](https://www.squidrouter.com/)
-- Hosted on [Fleek](https://fleek.xyz/) : [https://the-analyst.on-fleek.app](https://the-analyst.on-fleek.app/)
+- File ownership & storage : [Filecoin with lighthouse](lighthouse.storage)
 - Frontend: react/tailwind/daisyui and web3modal for the wallet connect button.
-- Api : covalent api & squidrouter api
+- Api : covalent api & swap using SquidRouter
