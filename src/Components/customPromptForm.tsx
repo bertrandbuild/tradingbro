@@ -1,17 +1,21 @@
 import { Formik, Form, Field, FieldArray, ErrorMessage, FormikValues } from "formik";
+import lighthouse from '@lighthouse-web3/sdk'
+import { useState } from "react";
 import { SiweMessage } from "siwe";
 import { useAccount, useSignMessage } from "wagmi";
 
 const CryptoAllocationForm = () => {
   const { address } = useAccount();
+  const [apiKey, setApiKey] = useState('');
+  const [uploadHash, setUploadHash] = useState('');
   const { signMessageAsync } = useSignMessage();
 
   const isConnected = address;
 
   const initialValues = {
-    apikey:"",
     assetManagerName: "",
     favoriteTokens: "",
+    image: "",
     notRecommendedTokens: "",
     strategies: [
       {
@@ -79,28 +83,34 @@ const CryptoAllocationForm = () => {
     return await signMessageAsync({ message: messageToSign });
   }
 
-  const createNewApiKey = async (setFieldValue: (field: string, value: unknown) => void) => {
+  const createNewApiKey = async () => {
     try {
       const messageToSign = await getLighthouseMessageToSign();
       const signedMessage = await siwe(messageToSign);
       const apiKey = await getLighthouseApiKey(signedMessage);
 
-      setFieldValue('apikey', apiKey);
+      setApiKey(apiKey);
     } catch (error) {
       console.error('There was a problem fetching the API key:', error);
     }
   }
   
   const onSubmit = async (values: FormikValues) => {
-    console.log(values);
-    // Handle form submission here
+    if (!apiKey) throw new Error("Api key is missing");
+    try {
+      const response = await lighthouse.uploadText(JSON.stringify(values), apiKey, values.assetManagerName)
+      console.log(response);
+      setUploadHash(response.data.Hash)
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
     <div className="p-4 max-w-2xl mx-auto bg-base-100 rounded-md shadow-md">
       <h2 className="text-2xl font-semibold mb-4">Crypto Allocation Form</h2>
       <Formik initialValues={initialValues} onSubmit={onSubmit}>
-        {({ values, setFieldValue }) => (
+        {({ values }) => (
           <Form className="space-y-4">
             <div>
               <label htmlFor="assetManagerName" className="block font-medium">
@@ -131,6 +141,23 @@ const CryptoAllocationForm = () => {
               />
               <ErrorMessage
                 name="favoriteTokens"
+                component="div"
+                className="text-red-600"
+              />
+            </div>
+            
+            <div>
+              <label htmlFor="image" className="block font-medium">
+                Image Url
+              </label>
+              <Field
+                id="image"
+                name="image"
+                type="text"
+                className="input input-bordered w-full"
+              />
+              <ErrorMessage
+                name="image"
                 component="div"
                 className="text-red-600"
               />
@@ -376,23 +403,30 @@ const CryptoAllocationForm = () => {
                   name="apikey"
                   type="text"
                   className="input input-bordered w-3/4"
+                  value={apiKey || ''}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                    setApiKey(e.target.value || '');
+                  }}
                   />
                 <button
                   type="button"
                   className="btn btn-secondary w-1/4 mx-4 flex"
-                  onClick={() => createNewApiKey(setFieldValue)}
+                  onClick={createNewApiKey}
                   >
                   Create a new lighthouse api key
                 </button>
                 <button
                   type="submit"
                   className="btn btn-primary w-1/4 mx-auto flex"
-                  disabled={!values.apikey}
+                  disabled={!apiKey}
                   >
                   Submit
                 </button>
               </div>
               <span className="prose prose-sm text-neutral-500">Lighthouse uses Filecoin to manage access rights,<br/> learn more on <a className="text-neutral-600" href="https://lighthouse.storage" target="_blank" rel="noopener noreferrer">lighthouse.storage</a></span>
+              {uploadHash && 
+                <span className="prose">Your strategy has been successfuly uploaded 🎉<br/> <a href={`./?hash=${uploadHash}`}>Test it now</a></span>
+              }
             </div>
             }
 
