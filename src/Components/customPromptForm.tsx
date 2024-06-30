@@ -1,7 +1,15 @@
-import { Formik, Form, Field, FieldArray, ErrorMessage } from "formik";
+import { Formik, Form, Field, FieldArray, ErrorMessage, FormikValues } from "formik";
+import { SiweMessage } from "siwe";
+import { useAccount, useSignMessage } from "wagmi";
 
 const CryptoAllocationForm = () => {
+  const { address } = useAccount();
+  const { signMessageAsync } = useSignMessage();
+
+  const isConnected = address;
+
   const initialValues = {
+    apikey:"",
     assetManagerName: "",
     favoriteTokens: "",
     notRecommendedTokens: "",
@@ -15,7 +23,75 @@ const CryptoAllocationForm = () => {
     ],
   };
 
-  const onSubmit = (values) => {
+  const getLighthouseMessageToSign = () => {
+    if (!address) return Promise.reject(new Error('no address'));
+    
+    const url = `https://api.lighthouse.storage/api/auth/get_message?publicKey=${address}`;
+    
+    return fetch(url)
+      .then(async response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok ' + response.statusText);
+        }
+        return response.json();
+      });
+  };
+  
+  const getLighthouseApiKey = (signedMessage: string) => {
+    if (!address) return Promise.reject(new Error('no address'));
+    
+    const url = `https://api.lighthouse.storage/api/auth/create_api_key`;
+    const data = {
+      "publicKey": address,
+      "signedMessage": signedMessage,
+      "keyName": `tradeWithSatoshi-${address}`,
+    };
+    
+    return fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    })
+      .then(async response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok ' + response.statusText);
+        }
+        return response.json();
+      });
+  };
+
+  const siwe = async (statement: string) => {
+    const domain = window.location.host;
+    const origin = window.location.origin;
+
+    const siweMessage = new SiweMessage({
+      domain,
+      address,
+      statement, // ie : the message to sign
+      uri: origin,
+      version: '1',
+      chainId: 1,
+    });
+
+    const messageToSign = siweMessage.prepareMessage();
+    return await signMessageAsync({ message: messageToSign });
+  }
+
+  const createNewApiKey = async (setFieldValue: (field: string, value: unknown) => void) => {
+    try {
+      const messageToSign = await getLighthouseMessageToSign();
+      const signedMessage = await siwe(messageToSign);
+      const apiKey = await getLighthouseApiKey(signedMessage);
+
+      setFieldValue('apikey', apiKey);
+    } catch (error) {
+      console.error('There was a problem fetching the API key:', error);
+    }
+  }
+  
+  const onSubmit = async (values: FormikValues) => {
     console.log(values);
     // Handle form submission here
   };
@@ -24,7 +100,7 @@ const CryptoAllocationForm = () => {
     <div className="p-4 max-w-2xl mx-auto bg-base-100 rounded-md shadow-md">
       <h2 className="text-2xl font-semibold mb-4">Crypto Allocation Form</h2>
       <Formik initialValues={initialValues} onSubmit={onSubmit}>
-        {({ values }) => (
+        {({ values, setFieldValue }) => (
           <Form className="space-y-4">
             <div>
               <label htmlFor="assetManagerName" className="block font-medium">
@@ -284,12 +360,42 @@ const CryptoAllocationForm = () => {
               )}
             </FieldArray>
 
-            <button
-              type="submit"
-              className="btn btn-primary mt-4 w-1/2 mx-auto flex"
-            >
-              Submit
-            </button>
+            {!isConnected && 
+              <div className="flex justify-center align-middle items-center">
+                <w3m-button label="Connect to add a new strategy"/>
+              </div>
+            }
+            {isConnected &&
+            <div className="flex flex-col pt-8">
+              <label htmlFor="apikey" className="block font-medium">
+                Lighthouse api key 
+              </label>
+              <div className="flex justify-center align-middle items-center">
+                <Field
+                  id="apikey"
+                  name="apikey"
+                  type="text"
+                  className="input input-bordered w-3/4"
+                  />
+                <button
+                  type="button"
+                  className="btn btn-secondary w-1/4 mx-4 flex"
+                  onClick={() => createNewApiKey(setFieldValue)}
+                  >
+                  Create a new lighthouse api key
+                </button>
+                <button
+                  type="submit"
+                  className="btn btn-primary w-1/4 mx-auto flex"
+                  disabled={!values.apikey}
+                  >
+                  Submit
+                </button>
+              </div>
+              <span className="prose prose-sm text-neutral-500">Lighthouse uses Filecoin to manage access rights,<br/> learn more on <a className="text-neutral-600" href="https://lighthouse.storage" target="_blank" rel="noopener noreferrer">lighthouse.storage</a></span>
+            </div>
+            }
+
           </Form>
         )}
       </Formik>
@@ -298,3 +404,4 @@ const CryptoAllocationForm = () => {
 };
 
 export default CryptoAllocationForm;
+

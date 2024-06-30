@@ -36,6 +36,7 @@
     "rehype-stringify": "^10.0.0",
     "remark-gfm": "^4.0.0",
     "remark-math": "^6.0.0",
+    "siwe": "^2.3.2",
     "uuid": "^9.0.1",
     "viem": "^2.13.1",
     "wagmi": "^2.9.7"
