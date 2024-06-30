@@ -57,7 +57,9 @@ const App = () => {
     <div className="container mx-auto p-4">
       {/* HEADER */}
       <header className="flex justify-between items-center my-4">
-        <h1 className="text-2xl font-bold">Trade with Satoshi</h1>
+        <a href="/">
+          <h1 className="text-2xl font-bold">Trade with Satoshi</h1>
+        </a>
         <div className="flex">
           {isConnected && <w3m-button/>}
           <label className="swap swap-rotate ml-2">
@@ -120,6 +122,11 @@ const App = () => {
           {' '}and{' '}
           <a href="https://www.squidrouter.com/" target="_blank" rel="noreferrer">
             <span className="hover:underline">SquidRouter</span>
+          </a>
+        </p>
+        <p className="prose-sm text-gray-500">
+          <a href="./add-strategy">
+            <span className="hover:underline">Add a new strategy</span>
           </a>
         </p>
       </footer>
